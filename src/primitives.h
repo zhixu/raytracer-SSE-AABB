@@ -109,7 +109,7 @@ class BoundingBox{
     float min_z, max_z; 
     
     BoundingBox(); 
-    BoundingBox(constVector3, constVector3, constVector3); 
+    BoundingBox(constTriangle); 
     BoundingBox(float, float, float, float, float, float); 
     
     int getLongestAxis(); 
@@ -121,10 +121,10 @@ class AABB_Node{
         BoundingBox bb;
         AABB_Node* children[2];  
         int triCount; 
-        __m128 (*containedTriangles)[4];  
+        __m128 (*containedTriangles)[9];  
         
         AABB_Node(){}; 
-        AABB_Node(__m128 (*triList)[4], int, int); 
+        AABB_Node(__m128 (*triList)[9], int, int); 
         float CollisionTest(constRay, Triangle*, float*); 
         bool CollisionTest(constRay, float*); 
 };

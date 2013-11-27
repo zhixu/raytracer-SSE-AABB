@@ -67,6 +67,7 @@ void vector3Cross(Vector3 &dst, constVector3 v1, constVector3 v2){
 // using http://fastcpp.blogspot.com/2012/02/calculating-length-of-3d-vector-using.html
 void vector3Normalize(Vector3 &dst, constVector3 v1){
 	float p[4];
+
     _mm_store_ps(p, v1);
     float magnitude = sqrt(vector3Dot(v1, v1));
     p[0] = p[0]/magnitude;
@@ -259,47 +260,6 @@ void setLight(Light light, float x, float y, float z, float r, float g, float b,
 	light[LIGHT_ISDIR_IDX] = isDirV;
 } //set light
 
-
-//brdf
-/*void brdfCopy(Triangle dst, Brdf src){
-
-    vector3Copy(triangle[BRDF_KD_IDX], src.kd);
-    vector3Copy(triangle[BRDF_KS_IDX], src.ks);
-    vector3Copy(triangle[BRDF_KE_IDX], src.ke);
-    vector3Copy(triangle[BRDF_KR_IDX], src.kr);
-    vector3Copy(triangle[BRDF_SP_IDX], src.sp);
-
-} // copy brdf*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //*******************************************************************
 //aabb tree and bounding box methods
 //******************************************************************
@@ -433,7 +393,7 @@ BoundingBox getTriBB(constTriangle tri){
 }
 
 //given a list of triangles, get the BB enclosing all the triangles
-BoundingBox getBB(__m128(*tris)[4], int size){
+BoundingBox getBB(__m128(*tris)[9], int size){
     float minx, miny, minz, maxx, maxy, maxz;  
     minx  = miny = minz = LARGE_NUM; 
     maxx = maxy = maxz = -LARGE_NUM; 
@@ -477,14 +437,14 @@ AABB_Node::AABB_Node(__m128 (*triList)[9], int depth, int size){
             else
                 right.push_back(tris->at(i)); */
             if(getTriBB(triList[i]).getMidPoint(axis) < mid){
-                for (int j = 0; j < 9; i++) {
+                for (int j = 0; j < 9; j++) {
                     left[lc][j] = triList[i][j]; 
                 }
                 lc++; 
             }
             else{
                 for (int j = 0; j < 9; j++) {
-                    right[rc][j] = triList[j][0]; 
+                    right[rc][j] = triList[i][j]; 
                 }
                 rc++; 
             }

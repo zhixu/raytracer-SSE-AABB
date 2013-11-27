@@ -108,9 +108,9 @@ parsedScene loadScene(std::string file) {
       //  It must be set before vertices are deﬁned.
       else if(!splitline[0].compare("maxtri")) {
 		  S.triangleCount = atoi(splitline[1].c_str());
-		  S.triangleList = new __m128[S.triangleCount][4];
+		  S.triangleList = new __m128[S.triangleCount][9];
           S.bbList = new BoundingBox[S.triangleCount]; 
-		  S.brdfList = new Brdf[S.triangleCount];
+		  //S.brdfList = new Brdf[S.triangleCount];
       }
 	  //maxlight number
       //  Deﬁnes a maximum number of lights for later triangle speciﬁcations. 
@@ -164,7 +164,7 @@ parsedScene loadScene(std::string file) {
 						 p2, //p2
 						 p3, brdf_t); //p3
 			//brdfCopy(S.brdfList[triangleIdx], brdf_t);
-            S.bbList[triangleIdx] = BoundingBox(p1, p2, p3); 
+            S.bbList[triangleIdx] = BoundingBox(S.triangleList[triangleIdx]); 
 			++triangleIdx;
 		  }//if
 		  else{
@@ -328,7 +328,7 @@ parsedScene loadScene(std::string file) {
       }
     }
     inpfile.close();
-    S.root = AABB_Node(triangleList, 0, triangleCount); 
+    S.root = AABB_Node(S.triangleList, 0, S.triangleCount); 
     
 	
 	//delete obj

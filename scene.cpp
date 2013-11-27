@@ -107,20 +107,16 @@ void trace(Ray ray, const int depth, Color &baseColor){
 	Ray lightray, reflectedRay;
 
     float large = LARGE_NUM; 
-    Triangle* intertri = new Triangle(); 
-    float t = S.root.CollisionTest(ray, intertri,  &large); 
+    Triangle* intertri = new Triangle[9]; 
+    float t = Scene.root.CollisionTest(ray, intertri,  &large); 
     if(t == 0 || t == NO_INTERSECTION) return; 
     //calculate point of intersection using t value 
     Vector3 intersect; 
     vector3Scale(intersect, ray[RAY_DIRECTION_IDX], t); 
     vector3Add(intersect, intersect, ray[RAY_ORIGIN_IDX]); 
     
-    //CANNOT USE INTERSHAPE
-    //__m128 N = Scene.triangleList[intershapeIdx][TRIANGLE_NORMAL_IDX];
-    __m128 N = intertri[TRIANGLE_NORMAL_IDX];
-    //DON"T KNOW THIS
-    //Brdf brdf = Scene.brdfList[intershapeIdx];
-    
+    __m128* N = intertri[TRIANGLE_NORMAL_IDX];
+   
 	float temp1;
 	float dist = LARGE_NUM;
 	__m128 *light = NULL;
@@ -137,45 +133,44 @@ void trace(Ray ray, const int depth, Color &baseColor){
 		else { 
 			vector3Sub(tempV1, light[LIGHT_SRC_IDX], inter);
             setRayByVector(lightray, inter, tempV1);
-			dist = sqrt(vector3Dot(tempV1, tempV1));
-		}// else
-        
-        
+            dist = sqrt(vector3Dot(tempV1, tempV1));
+        }//
+
 		vector3Scale(tempV2, lightray[RAY_DIRECTION_IDX], 0.001); // shadow bias
 		vector3Add(lightray[RAY_ORIGIN_IDX], lightray[RAY_ORIGIN_IDX], tempV2);// shadow bias
-        if(!hasIntersect(Scene.triangleList, Scene.triangleCount, lightray, dist)){ //light ray for this light is not blocked by any shapes. 
-            
-			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], max(0.0f, vector3Dot(lightray[RAY_DIRECTION_IDX], N)));
-			colorMultiply(tempC1, tempC1, intertri[BRDF_KD_IDX]);
+        //if(!hasIntersect(Scene.triangleList, Scene.triangleCount, lightray, dist)){ //light ray for this light is not blocked by any shapes. 
+        if(!Scene.root.CollisionTest(lightray, &dist)){    
+			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], max(0.0f, vector3Dot(lightray[RAY_DIRECTION_IDX], *N)));
+			colorMultiply(tempC1, tempC1, *intertri[BRDF_KD_IDX]);
 			vector3Add(baseColor, baseColor, tempC1); 
             
-            getReflection(tempV1, lightray[RAY_DIRECTION_IDX], N);
+            getReflection(tempV1, lightray[RAY_DIRECTION_IDX], *N);
 			vector3Sub(tempV2, ray[RAY_ORIGIN_IDX], inter);
 			vector3Normalize(tempV2, tempV2);
             
             float sp[4];
-            _mm_store_ps(sp, intertri[BRDF_SP_IDX]);
+            _mm_store_ps(sp, *intertri[BRDF_SP_IDX]);
 			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], pow(max(0.0f, vector3Dot(tempV1, tempV2)), (int) sp[0]));
-			colorMultiply(tempC1, tempC1, intertri[BRDF_KD_IDX]);
+			colorMultiply(tempC1, tempC1, *intertri[BRDF_KD_IDX]);
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
     } // for   
     
-    vector3Add(baseColor, baseColor, intertri[BRDF_KE_IDX]); // the emission of this object
+    vector3Add(baseColor, baseColor, *intertri[BRDF_KE_IDX]); // the emission of this object
     vector3Add(baseColor, baseColor, Scene.ambient); // the overal ambient glow of the scene.
 
     float ks[4];
-    _mm_store_ps(ks, intertri[BRDF_KS_IDX]);
+    _mm_store_ps(ks, *intertri[BRDF_KS_IDX]);
     if (ks[0] > 0 || ks[1] > 0 || ks[2] > 0){
         
-		getReflection(tempV1, ray[RAY_DIRECTION_IDX], N);
+		getReflection(tempV1, ray[RAY_DIRECTION_IDX], *N);
 		vector3Scale(tempV1, tempV1, -1);
 		vector3Scale(tempV2, tempV1, 0.1);
 		vector3Add(tempV2, tempV2, inter);//bias
 
 		setRayByVector(reflectedRay, tempV2, tempV1);
 		trace(reflectedRay, depth + 1, reflectColor);
-		colorMultiply(reflectColor, reflectColor, intertri[BRDF_KS_IDX]);
+		colorMultiply(reflectColor, reflectColor, *intertri[BRDF_KS_IDX]);
 		vector3Add(baseColor, baseColor, reflectColor);
     } // if  
 } // trace
