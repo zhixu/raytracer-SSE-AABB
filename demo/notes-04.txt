@@ -1,0 +1,3 @@
+image-04: command "./scene demo/input-04.test -screen -file"
+This is just the 1000 spheres rendering with anti-aliasing.  Unfortunately, we did not have time to implement acceleration structures for this project, so it takes a while to render with anti-aliasing.
+time: 2 hours

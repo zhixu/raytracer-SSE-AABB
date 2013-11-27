@@ -1,0 +1,3 @@
+image-05: command "./scene demo/input-05.test -screen -file"
+This is an abstract scene that demonstrates arbitary polygonal shapes can be represented.  It's abstract art.
+time: 4-6 minutes

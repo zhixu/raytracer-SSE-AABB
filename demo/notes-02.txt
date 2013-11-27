@@ -1,0 +1,3 @@
+image-02:  command "./scene demo/input-02.test -screen -file"
+This is a modification of scene 4.  Here, each component of light is highlighted.  Ambient/emission is in red, Diffuse is in green, and Specular is in blue.  It also shows how rotation and scaling of sheres into ellipsoids produces the expected interaction with light.
+time: 4-6 minutes

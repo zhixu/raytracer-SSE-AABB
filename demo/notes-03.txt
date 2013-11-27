@@ -1,0 +1,3 @@
+image-03: command "./scene demo/input-03.test -screen -file"
+This is scene 6 re-rendering with anti-aliasing of depth 4 (16 rays per 1 pixel).  It re-iterates features from above, but also shows rotation on triangles and specular reflection in an actual room-like scene.
+time: 4-6 minutes
