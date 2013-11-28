@@ -62,6 +62,7 @@ void vector3Normalize(Vector3 &dst, constVector3 v1){
     p[0] = p[0]/magnitude;
     p[1] = p[1]/magnitude;
     p[2] = p[2]/magnitude;
+    p[3] = 0; 
     
     dst = _mm_load_ps(p);
 } // normalize
@@ -211,7 +212,7 @@ bool hasIntersect(__m128(*triangleList)[9] , const int triangleCount, constRay r
 
 //bool nearestIntersect(__m128(*triangleList)[9], const int triangleCount, constRay ray, Vector3 &intersectPt, int &triangleIdx, float &tmax); // check every possible triangle and return the nearest
 // check every possible triangle and return the nearest
-float nearestIntersect(__m128(*triangleList)[9] , int triangleCount, constRay ray, Triangle tri, float* tmax){
+float nearestIntersect(__m128(*triangleList)[9] , int triangleCount, constRay ray, Triangle* tri, float* tmax){
 	float t = -1;
     float min = *tmax;
 	bool intersect;
@@ -221,7 +222,7 @@ float nearestIntersect(__m128(*triangleList)[9] , int triangleCount, constRay ra
         if (intersect && t < min){
             min = t;
             for (int j = 0; j < 9; j++) {
-                tri[j] = triangleList[i][j]; 
+                (*tri)[j] = triangleList[i][j]; 
             }
         } // if
     } // for
@@ -534,7 +535,7 @@ bool AABB_Node::CollisionTest(constRay ray, float* limit){
 
 //return t value for ray, calculate point of intersection with t value
 // if returns 0, no intersection
-float AABB_Node::CollisionTest(constRay ray, Triangle tri, float* limit){
+float AABB_Node::CollisionTest(constRay ray, Triangle* tri, float* limit){
     if(!bb.intersect(ray)){
         return NO_INTERSECTION; 
     }

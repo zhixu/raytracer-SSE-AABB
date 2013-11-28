@@ -127,7 +127,7 @@ class AABB_Node{
         
         AABB_Node(){}; 
         AABB_Node(__m128 (*triList)[9], int, int); 
-        float CollisionTest(constRay, Triangle, float*); 
+        float CollisionTest(constRay, Triangle*, float*); 
         bool CollisionTest(constRay, float*); 
 };
 

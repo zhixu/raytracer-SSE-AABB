@@ -111,7 +111,7 @@ void trace(Ray ray, const int depth, Color &baseColor){
     
     int a = 1; 
    //just pass in pointers
-    float t = Scene.root.CollisionTest(ray, *intertri, &large); 
+    float t = Scene.root.CollisionTest(ray, intertri, &large); 
     if(t == 0 || t == NO_INTERSECTION) return; 
    // setVector3(baseColor, 1, 0, 0);   //we know the silhoulette is right 
    // return; 
@@ -152,19 +152,18 @@ void trace(Ray ray, const int depth, Color &baseColor){
 			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], max(0.0f, vector3Dot(lightray[RAY_DIRECTION_IDX], N)));
 			colorMultiply(tempC1, tempC1, (*intertri)[BRDF_KD_IDX]);
 			vector3Add(baseColor, baseColor, tempC1); 
-            /*printf("normal\t");
-            printVector(*N);
-            printf("tempC1\t");
-            printVector(tempC1);*/
-
+         
             getReflection(tempV1, lightray[RAY_DIRECTION_IDX], N);
 			vector3Sub(tempV2, ray[RAY_ORIGIN_IDX], inter);
 			vector3Normalize(tempV2, tempV2);
             
             float sp[4];
             _mm_store_ps(sp, (*intertri)[BRDF_SP_IDX]);
-			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], pow(max(0.0f, vector3Dot(tempV1, tempV2)), (int) sp[0]));
-			colorMultiply(tempC1, tempC1, (*intertri)[BRDF_KD_IDX]);
+            float exp = pow(max(0.0f, vector3Dot(tempV1, tempV2)), sp[0]); 
+			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], pow(max(0.0f, vector3Dot(tempV1, tempV2)), sp[0]));
+        
+             
+			colorMultiply(tempC1, tempC1, (*intertri)[BRDF_KS_IDX]);
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
     } // for   
