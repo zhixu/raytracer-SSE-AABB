@@ -99,7 +99,7 @@ void trace(Ray ray, const int depth, Color &baseColor){
         return;
     }
     
-	Vector3 inter;  //ray from camera intersects a shape at this point
+	//Vector3 inter;  //ray from camera intersects a shape at this point
     Vector3 tempV1, tempV2;
 	Color tempC1;
 	Color reflectColor; // color from reflected ray
@@ -122,8 +122,6 @@ void trace(Ray ray, const int depth, Color &baseColor){
     vector3Add(intersect, intersect, ray[RAY_ORIGIN_IDX]); 
     
     __m128 N = (*intertri)[TRIANGLE_NORMAL_IDX];
-    
-    //printTriangle(*intertri);
    
 	float temp1;
 	float dist = LARGE_NUM;
@@ -136,13 +134,21 @@ void trace(Ray ray, const int depth, Color &baseColor){
         float isDir[4];
         _mm_storeu_ps(isDir, light[LIGHT_ISDIR_IDX]);
         if(isDir[0] != 0) {
-			setRayByVector(lightray, inter, light[LIGHT_SRC_IDX]);
+			setRayByVector(lightray, intersect, light[LIGHT_SRC_IDX]);
         } // if
 		else { 
-			vector3Sub(tempV1, light[LIGHT_SRC_IDX], inter);
-            setRayByVector(lightray, inter, tempV1);
+			vector3Sub(tempV1, light[LIGHT_SRC_IDX], intersect);
+            setRayByVector(lightray, intersect, tempV1);
             dist = sqrt(vector3Dot(tempV1, tempV1));
         }//
+        /*printf("intersect\t");
+        printVector(intersect);
+        
+        printf("light source\t");
+        printVector(light[LIGHT_SRC_IDX]);
+        
+        printf("shadow ray\n");
+        printRay(lightray);*/
 
 		vector3Scale(tempV2, lightray[RAY_DIRECTION_IDX], 0.001); // shadow bias
 		vector3Add(lightray[RAY_ORIGIN_IDX], lightray[RAY_ORIGIN_IDX], tempV2);// shadow bias
@@ -154,15 +160,14 @@ void trace(Ray ray, const int depth, Color &baseColor){
 			vector3Add(baseColor, baseColor, tempC1); 
          
             getReflection(tempV1, lightray[RAY_DIRECTION_IDX], N);
-			vector3Sub(tempV2, ray[RAY_ORIGIN_IDX], inter);
+			vector3Sub(tempV2, ray[RAY_ORIGIN_IDX], intersect);
 			vector3Normalize(tempV2, tempV2);
             
             float sp[4];
             _mm_store_ps(sp, (*intertri)[BRDF_SP_IDX]);
-            float exp = pow(max(0.0f, vector3Dot(tempV1, tempV2)), sp[0]); 
-			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], pow(max(0.0f, vector3Dot(tempV1, tempV2)), sp[0]));
-        
-             
+            float exp = pow(max(0.0f, vector3Dot(tempV1, tempV2)), (int) sp[0]); 
+
+			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], (int) exp);
 			colorMultiply(tempC1, tempC1, (*intertri)[BRDF_KS_IDX]);
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
@@ -179,7 +184,7 @@ void trace(Ray ray, const int depth, Color &baseColor){
 		getReflection(tempV1, ray[RAY_DIRECTION_IDX], N);
 		vector3Scale(tempV1, tempV1, -1);
 		vector3Scale(tempV2, tempV1, 0.1);
-		vector3Add(tempV2, tempV2, inter);//bias
+		vector3Add(tempV2, tempV2, intersect);//bias
 
 		setRayByVector(reflectedRay, tempV2, tempV1);
 		trace(reflectedRay, depth + 1, reflectColor);

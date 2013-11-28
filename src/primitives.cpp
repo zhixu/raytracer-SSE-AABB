@@ -264,6 +264,10 @@ void getReflection(Vector3 &reflectionDirection, constVector3 rayDirection, cons
 	vector3Scale(reflectionDirection, normal, 2 * dp);
 	vector3Sub(reflectionDirection, reflectionDirection, rayDirection);
 	vector3Normalize(reflectionDirection, reflectionDirection);
+    
+    //printf("reflection direction\t");
+    //printVector(reflectionDirection);
+    
 } // get reflection ray direction
 
 //light
@@ -280,6 +284,7 @@ void setLight(Light light, float x, float y, float z, float r, float g, float b,
 	light[LIGHT_ISDIR_IDX] = isDirV;
 } //set light
 
+//brdf
 Brdf::Brdf() { }
 
 Brdf::Brdf(Color tkd, Color tks, Color tke, float tkr, float tsp) {
