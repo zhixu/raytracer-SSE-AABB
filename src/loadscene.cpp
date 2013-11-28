@@ -22,11 +22,18 @@ parsedScene loadScene(std::string file) {
 	int vertexCount = 0;
 
     Vector3 (*vertices);
-	Brdf brdf_t;
+	Brdf brdf_t = Brdf();
     
-    Color tkd;
-     setVector3(tkd, 0.2, 0.2, 0.2);
-     brdf_t.kd = tkd;
+    Color tkd, tks, tke;
+    setVector3(tkd, 0.2, 0.2, 0.2);
+    setVector3(tks, 0, 0, 0);
+    setVector3(tke, 0, 0, 0);
+    
+    brdf_t.kd = tkd;
+    brdf_t.ks = tks;
+    brdf_t.ke = tke;
+    brdf_t.kr = 0;
+    brdf_t.sp = 0;
     
     /*{0.2, 0.2, 0.2, 0, //kd
 				 0, 0, 0, 0,//ks

@@ -81,12 +81,14 @@ void vector3Normalize(Vector3 &dst, constVector3 v1);
 void vector3Copy(Vector3 &dst, constVector3 src);
 void colorMultiply(Color &dst, constColor c1, constColor c2);
 void printVector(Vector3 v);
+void printTriangle(Triangle t);
+void printRay(Ray r);
 
 //triangle
 void setTriangle(Triangle triangle, constVector3 p1, constVector3 p2, constVector3 p3, Brdf brdf);
 bool intersectTriangle(constTriangle triangle, constRay ray, float &rr); // check if intersect with the triangle
-bool hasIntersect(__m128(*triangleList)[9], const int triangleCount, constRay ray, const float tmax); // only check if intersect with any triangle
-bool nearestIntersect(__m128(*triangleList)[9], const int triangleCount, constRay ray, Vector3 &intersectPt, int &triangleIdx, const float tmax); // check every possible triangle and return the nearest
+bool hasIntersect(__m128(*triangleList)[9], const int triangleCount, constRay ray, const float &tmax); // only check if intersect with any triangle
+bool nearestIntersect(__m128(*triangleList)[9], const int triangleCount, constRay ray, Vector3 &intersectPt, int &triangleIdx, float &tmax); // check every possible triangle and return the nearest
 
 //ray
 void setRayByValue(Ray &ray, float x, float y, float z, float dx, float dy, float dz);
@@ -125,7 +127,7 @@ class AABB_Node{
         
         AABB_Node(){}; 
         AABB_Node(__m128 (*triList)[9], int, int); 
-        float CollisionTest(constRay, Triangle*, float*); 
+        float CollisionTest(constRay, Triangle, float*); 
         bool CollisionTest(constRay, float*); 
 };
 

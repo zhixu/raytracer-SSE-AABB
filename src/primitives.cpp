@@ -2,17 +2,6 @@
 #include <algorithm>
 #include <cstdio>
 
-Brdf::Brdf() { }
-
-Brdf::Brdf(Color tkd, Color tks, Color tke, float tkr, float tsp) {
-    kd = tkd;
-    ks = tks;
-    ke = tke;
-    kr = tkr;
-    sp = tsp;
-}
-
-
 /* utility function */
 //vector
 void setVector3(Vector3 &dst, float x, float y, float z){
@@ -103,10 +92,36 @@ void printVector(Vector3 v) {
 
     _mm_store_ps(p, v);
     //if ( p[0] != p[0] || p[1] != p[1] || p[2] != p[2] || p[3] != p[3] ) {
-    if ( p[0] != 0 || p[1] != 0 || p[2] != 0 || p[3] != 0) {
+    //if ( p[0] != 0 || p[1] != 0 || p[2] != 0 || p[3] != 0) {
         printf("VECTOR\t");
         printf("x: %f y: %f z: %f extra: %f\n", p[0], p[1], p[2], p[3]);
-    }
+    //}
+}
+
+void printTriangle(Triangle t) {
+    printf("--------------------------TRIANGLE------------------------------------\n");
+    printf("kd\t");
+    printVector(t[BRDF_KD_IDX]);
+    printf("ks\t");
+    printVector(t[BRDF_KS_IDX]);
+    printf("ke\t");
+    printVector(t[BRDF_KE_IDX]);
+    printf("kr\t");
+    printVector(t[BRDF_KR_IDX]);
+    printf("sp\t");
+    printVector(t[BRDF_SP_IDX]);
+    printf("triangle points though\n");
+    printVector(t[TRIANGLE_PT1_IDX]);
+    printVector(t[TRIANGLE_PT2_IDX]);
+    printVector(t[TRIANGLE_PT3_IDX]);
+    printVector(t[TRIANGLE_NORMAL_IDX]);
+}
+
+void printRay(Ray r) {
+    printf("RAY ORIGIN\t");
+    printVector(r[RAY_ORIGIN_IDX]);
+    printf("RAY DIRECTION\t");
+    printVector(r[RAY_DIRECTION_IDX]);
 }
 
 //triangle
@@ -134,8 +149,6 @@ void setTriangle(Triangle triangle, constVector3 p1, constVector3 p2, constVecto
     vector3Copy(triangle[BRDF_KE_IDX], brdf.ke);
     vector3Copy(triangle[BRDF_KR_IDX], kr);
     vector3Copy(triangle[BRDF_SP_IDX], sp);
-    
-    //triangle = temp;
 } // set triangle
 
 // check if intersect with the triangle
@@ -184,26 +197,32 @@ bool hasIntersect(__m128(*triangleList)[9] , const int triangleCount, constRay r
 
     for(int i = 0; i < triangleCount; i++){
        intersect = intersectTriangle(&(triangleList[i][0]), ray, &t);
-       if (intersect && t < *tmax) return true; //there is an intersection              
+       if (intersect && t < *tmax) {
+           *tmax = t; 
+           return true; //there is an intersection    
+       }          
     } // for
     
     return false;
-} // has intersect
+} // has intersect{
+    
 
+
+
+//bool nearestIntersect(__m128(*triangleList)[9], const int triangleCount, constRay ray, Vector3 &intersectPt, int &triangleIdx, float &tmax); // check every possible triangle and return the nearest
 // check every possible triangle and return the nearest
-float nearestIntersect(__m128(*triangleList)[9] , int triangleCount, constRay ray, Triangle* tri, float* tmax){
+float nearestIntersect(__m128(*triangleList)[9] , int triangleCount, constRay ray, Triangle tri, float* tmax){
 	float t = -1;
     float min = *tmax;
 	bool intersect;
 
 	for(int i = 0; i < triangleCount; i++){
-        intersect = intersectTriangle(&(triangleList[i][0]), ray, &t);
+        intersect = intersectTriangle(triangleList[i], ray, &t);
         if (intersect && t < min){
             min = t;
-            (*tri)[0] = triangleList[i][0]; 
-            (*tri)[1] = triangleList[i][1]; 
-            (*tri)[2] = triangleList[i][2]; 
-            (*tri)[3] = triangleList[i][3]; 
+            for (int j = 0; j < 9; j++) {
+                tri[j] = triangleList[i][j]; 
+            }
         } // if
     } // for
 
@@ -259,6 +278,29 @@ void setLight(Light light, float x, float y, float z, float r, float g, float b,
 	light[LIGHT_COLOR_IDX] = color;
 	light[LIGHT_ISDIR_IDX] = isDirV;
 } //set light
+
+Brdf::Brdf() { }
+
+Brdf::Brdf(Color tkd, Color tks, Color tke, float tkr, float tsp) {
+    kd = tkd;
+    ks = tks;
+    ke = tke;
+    kr = tkr;
+    sp = tsp;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //*******************************************************************
 //aabb tree and bounding box methods
@@ -492,7 +534,7 @@ bool AABB_Node::CollisionTest(constRay ray, float* limit){
 
 //return t value for ray, calculate point of intersection with t value
 // if returns 0, no intersection
-float AABB_Node::CollisionTest(constRay ray, Triangle* tri, float* limit){
+float AABB_Node::CollisionTest(constRay ray, Triangle tri, float* limit){
     if(!bb.intersect(ray)){
         return NO_INTERSECTION; 
     }
