@@ -90,11 +90,11 @@ void colorMultiply(Color &dst, constColor c1, constColor c2){
 
 void printVector(Vector3 v) {
     float p[4];
-
+    printf("VECTOR\t");
     _mm_store_ps(p, v);
     //if ( p[0] != p[0] || p[1] != p[1] || p[2] != p[2] || p[3] != p[3] ) {
     //if ( p[0] != 0 || p[1] != 0 || p[2] != 0 || p[3] != 0) {
-        printf("VECTOR\t");
+        
         printf("x: %f y: %f z: %f extra: %f\n", p[0], p[1], p[2], p[3]);
     //}
 }

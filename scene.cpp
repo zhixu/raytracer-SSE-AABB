@@ -141,14 +141,6 @@ void trace(Ray ray, const int depth, Color &baseColor){
             setRayByVector(lightray, intersect, tempV1);
             dist = sqrt(vector3Dot(tempV1, tempV1));
         }//
-        /*printf("intersect\t");
-        printVector(intersect);
-        
-        printf("light source\t");
-        printVector(light[LIGHT_SRC_IDX]);
-        
-        printf("shadow ray\n");
-        printRay(lightray);*/
 
 		vector3Scale(tempV2, lightray[RAY_DIRECTION_IDX], 0.001); // shadow bias
 		vector3Add(lightray[RAY_ORIGIN_IDX], lightray[RAY_ORIGIN_IDX], tempV2);// shadow bias
@@ -165,9 +157,7 @@ void trace(Ray ray, const int depth, Color &baseColor){
             
             float sp[4];
             _mm_store_ps(sp, (*intertri)[BRDF_SP_IDX]);
-            float exp = pow(max(0.0f, vector3Dot(tempV1, tempV2)), (int) sp[0]); 
-
-			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], (int) exp);
+			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], pow(max(0.0f, vector3Dot(tempV1, tempV2)), (int) sp[0]));
 			colorMultiply(tempC1, tempC1, (*intertri)[BRDF_KS_IDX]);
 			vector3Add(baseColor, baseColor, tempC1); 
         } // if
@@ -175,25 +165,22 @@ void trace(Ray ray, const int depth, Color &baseColor){
     
     vector3Add(baseColor, baseColor, (*intertri)[BRDF_KE_IDX]); // the emission of this object
     vector3Add(baseColor, baseColor, Scene.ambient); // the overal ambient glow of the scene.
-    //printf("not so final color\t");
-    //printVector(baseColor);
+
     float ks[4];
     _mm_store_ps(ks, (*intertri)[BRDF_KS_IDX]);
+    //printf("specular\t");
+    //printVector((*intertri)[BRDF_KS_IDX]);
     if (ks[0] > 0 || ks[1] > 0 || ks[2] > 0){
-        
 		getReflection(tempV1, ray[RAY_DIRECTION_IDX], N);
 		vector3Scale(tempV1, tempV1, -1);
 		vector3Scale(tempV2, tempV1, 0.1);
 		vector3Add(tempV2, tempV2, intersect);//bias
 
 		setRayByVector(reflectedRay, tempV2, tempV1);
-		trace(reflectedRay, depth + 1, reflectColor);
+        trace(reflectedRay, depth + 1, reflectColor);
 		colorMultiply(reflectColor, reflectColor, (*intertri)[BRDF_KS_IDX]);
 		vector3Add(baseColor, baseColor, reflectColor);
     } // if  
-    //printTriangle(*intertri);
-    //printf("final color\t");
-    //printVector(baseColor);
 } // trace
 
 void drawScreen() {
