@@ -180,8 +180,8 @@ void trace(Ray ray, const int depth, Color &baseColor){
         trace(reflectedRay, depth + 1, reflectColor);
 		colorMultiply(reflectColor, reflectColor, (*intertri)[BRDF_KS_IDX]);
 		vector3Add(baseColor, baseColor, reflectColor);
-    } // if
-  
+    }
+    // if  
 } // trace
 
 void drawScreen() {
