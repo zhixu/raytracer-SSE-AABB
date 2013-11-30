@@ -43,7 +43,7 @@ float timestamp()
 {
 	struct timeval tv;
 	gettimeofday(&tv, 0);
-	return tv.tv_sec+1e-6*tv.tv_usec;
+	return 1e-6*tv.tv_usec;
 }
 #define PI 3.14159265  // Should be used from mathlib
 inline float sqr(float x) { return x*x; }
@@ -108,13 +108,9 @@ void trace(Ray ray, const int depth, Color &baseColor){
 
     float large = LARGE_NUM; 
     Triangle* intertri = new Triangle[9]; 
-    
-    int a = 1; 
-   //just pass in pointers
+
     float t = Scene.root.CollisionTest(ray, intertri, &large); 
     if(t == 0 || t == NO_INTERSECTION) return; 
-   // setVector3(baseColor, 1, 0, 0);   //we know the silhoulette is right 
-   // return; 
 
     //calculate point of intersection using t value 
     Vector3 intersect; 
@@ -142,7 +138,7 @@ void trace(Ray ray, const int depth, Color &baseColor){
             dist = sqrt(vector3Dot(tempV1, tempV1));
         }//
 
-		vector3Scale(tempV2, lightray[RAY_DIRECTION_IDX], 0.001); // shadow bias
+		vector3Scale(tempV2, lightray[RAY_DIRECTION_IDX], 0.0001); // shadow bias
 		vector3Add(lightray[RAY_ORIGIN_IDX], lightray[RAY_ORIGIN_IDX], tempV2);// shadow bias
         //if(!hasIntersect(Scene.triangleList, Scene.triangleCount, lightray, dist)){ //light ray for this light is not blocked by any shapes. 
         
@@ -173,14 +169,15 @@ void trace(Ray ray, const int depth, Color &baseColor){
     if (ks[0] > 0 || ks[1] > 0 || ks[2] > 0){
 		getReflection(tempV1, ray[RAY_DIRECTION_IDX], N);
 		vector3Scale(tempV1, tempV1, -1);
-		vector3Scale(tempV2, tempV1, 0.1);
+		vector3Scale(tempV2, tempV1, 0.001);
 		vector3Add(tempV2, tempV2, intersect);//bias
 
 		setRayByVector(reflectedRay, tempV2, tempV1);
         trace(reflectedRay, depth + 1, reflectColor);
 		colorMultiply(reflectColor, reflectColor, (*intertri)[BRDF_KS_IDX]);
 		vector3Add(baseColor, baseColor, reflectColor);
-    } // if  
+    }
+    // if  
 } // trace
 
 void drawScreen() {
@@ -261,6 +258,13 @@ void myDisplay() {
 
 	glMatrixMode(GL_MODELVIEW);			        // indicate we are specifying camera transformations
 	glLoadIdentity();				        // make sure transformation is "zero'd"
+        /*float lookfrom[4]; 
+ 	_mm_storeu_ps(lookfrom, Scene.lookfrom); 
+	lookfrom[0] = lookfrom[0] + 0.5; 
+	lookfrom[2] = lookfrom[2] + 0.5; 
+	Scene.lookfrom = _mm_load_ps(lookfrom); */
+
+	drawScreen(); 
 
 	glBegin(GL_POINTS); 
 
@@ -278,6 +282,30 @@ void myDisplay() {
 	glFlush();
 	glutSwapBuffers();					// swap buffers (we earlier set float buffer)	
 }
+void myFrameMove(){
+	glutPostRedisplay(); 
+
+}
+
+void specialKeys(int key, int x, int y){
+	float lookfrom[4]; 
+ 	_mm_storeu_ps(lookfrom, Scene.lookfrom);  
+	Scene.lookfrom = _mm_load_ps(lookfrom);
+   
+    switch(key){
+	case GLUT_KEY_RIGHT:lookfrom[0] = lookfrom[0] + 0.5; 
+	break;
+
+	case GLUT_KEY_LEFT:lookfrom[0] = lookfrom[0] - 0.5; 
+	break;
+
+}
+
+Scene.lookfrom = _mm_load_ps(lookfrom);
+
+}
+
+
 
 int main(int argc, char *argv[]) {
     try {
@@ -365,10 +393,10 @@ int main(int argc, char *argv[]) {
 		
 		imageBuffer = new float[Scene.width * Scene.height][4];
 	    
-		double time = 0.0;
+		/*double time = 0.0;
 		time = timestamp();
 		drawScreen(); // the main computation hog
-		printf("Time %f\n", timestamp() - time);
+		printf("Time %f\n", timestamp() - time);*/
 		
 		if (flagDrawToScreen){
 			cout << endl << endl << "::: To Screen :::" << endl << endl;
@@ -388,7 +416,8 @@ int main(int argc, char *argv[]) {
 
 			glutDisplayFunc(myDisplay);				// function to run when its time to draw something
 			glutReshapeFunc(myReshape);				// function to run when the window gets resized
-			glutKeyboardFunc(myKeyboardFunc);
+			glutIdleFunc(myFrameMove); 
+			glutSpecialFunc(specialKeys);
 
 			glutMainLoop();							// infinite loop that will keep drawing and resizing
 			
@@ -429,9 +458,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	delete[] Scene.triangleList;
+    //delete[] Scene.triangleList;
 	//delete[] Scene.brdfList;
-	delete[] Scene.lightList;
-    delete[] imageBuffer;
+    //	delete[] Scene.lightList;
+    //delete[] imageBuffer;
     return 0;
 }
