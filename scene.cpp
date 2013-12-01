@@ -109,6 +109,9 @@ void trace(Ray ray, const int depth, Color &baseColor){
 	Color reflectColor; // color from reflected ray
     setVector3(reflectColor, 0, 0, 0);
 	Ray lightray, reflectedRay;
+    float ks[4];
+    float sp[4];
+    float isDir[4];
 
     float large = LARGE_NUM; 
     Triangle* intertri = new Triangle[9]; 
@@ -131,7 +134,6 @@ void trace(Ray ray, const int depth, Color &baseColor){
     for(int i = 0; i < Scene.lightCount; ++i){
 		light = &(Scene.lightList[i][0]);
 
-        float isDir[4];
         _mm_storeu_ps(isDir, light[LIGHT_ISDIR_IDX]);
         if(isDir[0] != 0) {
 			setRayByVector(lightray, intersect, light[LIGHT_SRC_IDX]);
@@ -155,7 +157,6 @@ void trace(Ray ray, const int depth, Color &baseColor){
 			vector3Sub(tempV2, ray[RAY_ORIGIN_IDX], intersect);
 			vector3Normalize(tempV2, tempV2);
             
-            float sp[4];
             _mm_store_ps(sp, (*intertri)[BRDF_SP_IDX]);
 			vector3Scale(tempC1, light[LIGHT_COLOR_IDX], pow(max(0.0f, vector3Dot(tempV1, tempV2)), (int) sp[0]));
 			colorMultiply(tempC1, tempC1, (*intertri)[BRDF_KS_IDX]);
@@ -166,7 +167,6 @@ void trace(Ray ray, const int depth, Color &baseColor){
     vector3Add(baseColor, baseColor, (*intertri)[BRDF_KE_IDX]); // the emission of this object
     vector3Add(baseColor, baseColor, Scene.ambient); // the overal ambient glow of the scene.
 
-    float ks[4];
     _mm_store_ps(ks, (*intertri)[BRDF_KS_IDX]);
     //printf("specular\t");
     //printVector((*intertri)[BRDF_KS_IDX]);
@@ -181,6 +181,8 @@ void trace(Ray ray, const int depth, Color &baseColor){
 		colorMultiply(reflectColor, reflectColor, (*intertri)[BRDF_KS_IDX]);
 		vector3Add(baseColor, baseColor, reflectColor);
     } // if
+    
+    delete[] intertri;
   
 } // trace
 

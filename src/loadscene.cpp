@@ -1,5 +1,7 @@
 #include "loadscene.h"
 #include "primitives.h"
+
+#include <cstdio>
 using namespace std;
 
 
@@ -8,6 +10,15 @@ parsedScene loadScene(std::string file) {
   //store variables and set stuff at the end
   parsedScene S;  
   S.outputFileName = "output.png";  
+  
+    float minX = -1.0;
+    float maxX = 1.0;
+    
+    float minY = -1.0;
+    float maxY = 1.0;
+    
+    float minZ = -1.0;
+    float maxZ = 1.0;
 
   std::ifstream inpfile(file.c_str());
   if(!inpfile.is_open()) {
@@ -138,10 +149,23 @@ parsedScene loadScene(std::string file) {
       else if(!splitline[0].compare("vertex")) {
         // Create a new vertex with these 3 values, store in some array
 		  if(vertexIdx < vertexCount){
+              float u = atof(splitline[1].c_str());
+              float v = atof(splitline[2].c_str());
+              float w = atof(splitline[3].c_str());
+              
+              if (u < minX) { minX = u; }
+              if (u > maxX) { maxX = u; }
+              
+              if (v < minY) { minY = v; }
+              if (v > maxY) { maxY = v; }
+              
+              if (w < minZ) { minZ = w; }
+                if (w > maxZ) { maxZ = w; }
+              
 			setVector3( vertices[vertexIdx],
-						atof(splitline[1].c_str()), //x
-						atof(splitline[2].c_str()), //y
-						atof(splitline[3].c_str())); //z
+						u, //x
+						v, //y
+						w); //z
 			++vertexIdx;
 		  }//if
 		  else{
@@ -337,7 +361,9 @@ parsedScene loadScene(std::string file) {
     inpfile.close();
     S.root = AABB_Node(S.triangleList, 0, S.triangleCount); 
     
-	
+	printf("minx: %f maxx: %f miny: %f maxy: %f minz: %f maxz %f\n", minX, maxX, minY, maxY, minZ, maxZ);
+    
+    
 	//delete obj
 	delete[] vertices;
 
