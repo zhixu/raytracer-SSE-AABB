@@ -13,12 +13,12 @@
 #include "primitives.h"
 
 class parsedScene{
-    public:                
-        int width, height, reflectiondepth, triangleCount, lightCount;
-        float fov;
+    public:		
+        int width, height, reflectiondepth, triangleCount, lightCount; 
+        float fov;        
         float aaJitter; // jitter distance, 0 means none, 16 means approx 16 pixels???? not really, but it looks like it
-                                                // jitter does not work unless aaDepth >= 2.0
-                float aaDepth; // how many more iterations for aa, 1 means none, 32 is really strong, shoudl be d^k
+						// jitter does not work unless aaDepth >= 2.0
+		float aaDepth; // how many more iterations for aa, 1 means none, 32 is really strong, shoudl be d^k
 
         Color ambient;
         Vector3 lookfrom, lookat, up_dir;
@@ -27,12 +27,12 @@ class parsedScene{
         
         BoundingBox* bbList; //array of Bounding Boxes corresponding to each triangle
         __m128 (*triangleList)[9];
-                //Brdf (*brdfList);
+		//Brdf (*brdfList);
         __m128 (*lightList)[3];
         
-        AABB_Node root;
+        AABB_Node root; 
     
-    parsedScene();
+    parsedScene(); 
     
 };// class parsedScene
 

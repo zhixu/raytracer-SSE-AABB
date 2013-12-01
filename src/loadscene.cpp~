@@ -172,6 +172,7 @@ parsedScene loadScene(std::string file) {
                                                  p3, brdf_t); //p3
                         //brdfCopy(S.brdfList[triangleIdx], brdf_t);
             S.bbList[triangleIdx] = BoundingBox(S.triangleList[triangleIdx]);
+			printTriangle(S.triangleList[triangleIdx]);
                         ++triangleIdx;
                  }//if
                  else{

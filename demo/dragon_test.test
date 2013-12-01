@@ -50017,6 +50017,18 @@ vertex  5.0142 3.9242 0.2975
 vertex  5.0140 3.9334 0.2939
 vertex  5.0126 3.9222 0.2961
 vertex  -4.0968 7.6150 1.1201
+
+#cornell box vertices
+vertex -10.0 13.0 4.0
+vertex -10.0 13.0 -4.0
+vertex -10.0 -1.0 4.0
+vertex -10.0 -1.0 -4.0
+
+vertex 10.0 13.0 4.0
+vertex 10.0 13.0 -4.0
+vertex 10.0 -1.0 -4.0
+vertex 10.0 -1.0 4.0
+
 # 50000 vertexertices
 
 pushTransform
@@ -150022,19 +150034,17 @@ tri 41343 32922 32924
 tri 29825 47438 29824 
 tri 29825 42257 47438 
 
-#cornell box vertices
-vertex -10.0 11.0 4.0
-vertex -10.0 11.0 -4.0
-vertex -10.0 -1.0 4.0
-vertex -10.0 -1.0 -4.0
-
-vertex 10.0 11.0 4.0
-vertex 10.0 11.0 -4.0
-vertex 10.0 -1.0 -4.0
-vertex 10.0 -1.0 4.0
-
 #cornell box triangles
-tri 50001 50002 50003
-tri 50002 50004 50003
+emission 1 0 0 
+tri 50003 50002 50001
+tri 50003 50004 50002
+emission 0 1 0 
 tri 50005 50006 50007
-tri 50006 50008 50007
+tri 50005 50007 50008
+emission 1 1 1
+tri 50003 50004 50007
+tri 50003 50007 50008
+tri 50001 50002 50006
+tri 50001 50006 50005
+tri 50002 50004 50007
+tri 50002 50007 50006
